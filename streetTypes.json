@@ -1,0 +1,86 @@
+[
+    {
+        "name": "Avenue",
+        "abbreviation": "AV"
+    },
+    {
+        "name": "Boulevard",
+        "abbreviation": "BVD"
+    },
+    {
+        "name": "Circle",
+        "abbreviation": "CCL"
+    },
+    {
+        "name": "Circuit",
+        "abbreviation": "CCT"
+    },
+    {
+        "name": "Close",
+        "abbreviation": "CL"
+    },
+    {
+        "name": "Court",
+        "abbreviation": "CT"
+    },
+    {
+        "name": "Crescent",
+        "abbreviation": "CR"
+    },
+    {
+        "name": "Drive",
+        "abbreviation": "DR"
+    },
+    {
+        "name": "Esplanade",
+        "abbreviation": "ESP"
+    },
+    {
+        "name": "Expressway",
+        "abbreviation": "AV"
+    },
+    {
+        "name": "Highway",
+        "abbreviation": "HWY"
+    },
+    {
+        "name": "Lane",
+        "abbreviation": "LA"
+    },
+    {
+        "name": "Motorway",
+        "abbreviation": "AV"
+    },
+    {
+        "name": "Parade",
+        "abbreviation": "PDE"
+    },
+    {
+        "name": "Place",
+        "abbreviation": "PL"
+    },
+    {
+        "name": "Road",
+        "abbreviation": "RD"
+    },
+    {
+        "name": "Square",
+        "abbreviation": "SQ"
+    },
+    {
+        "name": "Street",
+        "abbreviation": "ST"
+    },
+    {
+        "name": "Terrace",
+        "abbreviation": "TCE"
+    },
+    {
+        "name": "Way",
+        "abbreviation": "WAY"
+    },
+    {
+        "name": "Other",
+        "abbreviation": ""
+    }
+]

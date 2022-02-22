@@ -1,0 +1,29 @@
+{
+  "name": "p2-iproject-server",
+  "version": "1.0.0",
+  "description": "Individual Project - Server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rmt-20-tartu-fox/p2-iproject-server.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rmt-20-tartu-fox/p2-iproject-server/issues"
+  },
+  "homepage": "https://github.com/rmt-20-tartu-fox/p2-iproject-server#readme",
+  "dependencies": {
+    "axios": "^0.26.0",
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "html-entities": "^2.3.2",
+    "html-entities-decoder": "^1.0.2",
+    "nodemon": "^2.0.15",
+    "xml2js": "^0.4.23"
+  }
+}
