@@ -17,9 +17,9 @@ console.log(API_KEY)
 class Controller {
 
     static async setFieldsDriverLicence(req, res, next) {
-        const {driverLicenceNumber, dob, surname, middleNames, givenName, tandc} = req.body
-        const {verificationid} = req.headers
-        const {sourceId} = req.params
+        const { driverLicenceNumber, dob, surname, middleNames, givenName, tandc } = req.body
+        const { verificationid } = req.headers
+        const { sourceId } = req.params
         let xmlSetDriverLicence = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:dyn="http://dynamicform.services.registrations.edentiti.com/">
 <soapenv:Header/>
 <soapenv:Body>
@@ -57,39 +57,89 @@ class Controller {
    </dyn:setFields>
 </soapenv:Body>
 </soapenv:Envelope>`
-        
-       
+
+
         try {
             let getFields = await greenID.post('', xmlSetDriverLicence)
             let parsedsetFields = JSON.parse(convert.xml2json(getFields.data, { compact: true, spaces: 4 }))
-            
+
             res.status(200).json({
                 result: parsedsetFields
             })
         } catch (err) {
             console.log(err)
-            let error 
-            if(err) {
-                if (Array.isArray(err.response.data.match(/<faultstring>(.*?)<\/faultstring>/g)) ) {
-                    error= err.response.data.match(/<faultstring>(.*?)<\/faultstring>/g)[0].replace(/<\/?[^>]+(>|$)/g, "")
+            let error
+            if (err) {
+                if (Array.isArray(err.response.data.match(/<faultstring>(.*?)<\/faultstring>/g))) {
+                    error = err.response.data.match(/<faultstring>(.*?)<\/faultstring>/g)[0].replace(/<\/?[^>]+(>|$)/g, "")
                 } else {
-                    error= err.response.data.match(/<faultstring>(.*?)<\/faultstring>/g).replace(/<\/?[^>]+(>|$)/g, "")
+                    error = err.response.data.match(/<faultstring>(.*?)<\/faultstring>/g).replace(/<\/?[^>]+(>|$)/g, "")
                 }
-                
-                res.status(500).json({error: error, message: 'internal server error'})
-                
+
+                res.status(500).json({ error: error, message: 'internal server error' })
+
                 console.log(err.response.data)
             }
-            
-            
-            
+
+
+
+        }
+    }
+
+    static async setFieldsDnb(req, res, next) {
+        const { tandc } = req.body
+        const { verificationid } = req.headers
+        const  sourceId  = 'dnb'
+        let xmlSetDnb = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:dyn="http://dynamicform.services.registrations.edentiti.com/">
+<soapenv:Header/>
+<soapenv:Body>
+   <dyn:setFields>
+      <accountId>${accountId}</accountId>
+      <password>${password}</password>
+      <verificationId>${verificationid}</verificationId>
+      <sourceId>${sourceId}</sourceId>
+      <inputFields>
+         <input>
+            <name>greenid_${sourceId}_tandc</name>
+            <value>${tandc}</value>
+         </input>
+      </inputFields>
+   </dyn:setFields>
+</soapenv:Body>
+</soapenv:Envelope>`
+
+
+        try {
+            let getFields = await greenID.post('', xmlSetDnb)
+            let parsedsetFields = JSON.parse(convert.xml2json(getFields.data, { compact: true, spaces: 4 }))
+
+            res.status(200).json({
+                result: parsedsetFields
+            })
+        } catch (err) {
+            console.log(err)
+            let error
+            if (err) {
+                if (Array.isArray(err.response.data.match(/<faultstring>(.*?)<\/faultstring>/g))) {
+                    error = err.response.data.match(/<faultstring>(.*?)<\/faultstring>/g)[0].replace(/<\/?[^>]+(>|$)/g, "")
+                } else {
+                    error = err.response.data.match(/<faultstring>(.*?)<\/faultstring>/g).replace(/<\/?[^>]+(>|$)/g, "")
+                }
+
+                res.status(500).json({ error: error, message: 'internal server error' })
+
+                console.log(err.response.data)
+            }
+
+
+
         }
     }
 
     static async setFieldsAec(req, res, next) {
-        const { surname, middleNames, givenName, streetName, streetNumber, streetType, suburb, state, postcode} = req.body
-        const {verificationid} = req.headers
-        const {sourceId} = 'aec'
+        const { surname, middleNames, givenName, streetName, streetNumber, streetType, suburb, state, postcode } = req.body
+        const { verificationid } = req.headers
+        
         let xmlSetAec = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:dyn="http://dynamicform.services.registrations.edentiti.com/">
 <soapenv:Header/>
 <soapenv:Body>
@@ -140,39 +190,105 @@ class Controller {
    </dyn:setFields>
 </soapenv:Body>
 </soapenv:Envelope>`
-        
-       
+
+
         try {
             let getFields = await greenID.post('', xmlSetAec)
             let parsedsetFields = JSON.parse(convert.xml2json(getFields.data, { compact: true, spaces: 4 }))
-            
+
             res.status(200).json({
                 result: parsedsetFields
             })
         } catch (err) {
             console.log(err)
-            let error 
-            if(err) {
-                if (Array.isArray(err.response.data.match(/<faultstring>(.*?)<\/faultstring>/g)) ) {
-                    error= err.response.data.match(/<faultstring>(.*?)<\/faultstring>/g)[0].replace(/<\/?[^>]+(>|$)/g, "")
+            let error
+            if (err) {
+                if (Array.isArray(err.response.data.match(/<faultstring>(.*?)<\/faultstring>/g))) {
+                    error = err.response.data.match(/<faultstring>(.*?)<\/faultstring>/g)[0].replace(/<\/?[^>]+(>|$)/g, "")
                 } else {
-                    error= err.response.data.match(/<faultstring>(.*?)<\/faultstring>/g).replace(/<\/?[^>]+(>|$)/g, "")
+                    error = err.response.data.match(/<faultstring>(.*?)<\/faultstring>/g).replace(/<\/?[^>]+(>|$)/g, "")
                 }
-                
-                res.status(500).json({error: error, message: 'internal server error'})
-                
+
+                res.status(500).json({ error: error, message: 'internal server error' })
+
                 console.log(err.response.data)
             }
-            
-            
-            
+
+
+
         }
     }
 
-    static async getSources(req, res, next) {
+    static async setFieldsVisa(req, res, next) {
+        const { visaNumber, surname, dob, country, tandc} = req.body
         
-        const {verificationid} = req.headers
-        console.log(req.headers< "INI HEADERS")
+        
+        let xmlSetVisa = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:dyn="http://dynamicform.services.registrations.edentiti.com/">
+<soapenv:Header/>
+<soapenv:Body>
+   <dyn:setFields>
+      <accountId>${accountId}</accountId>
+      <password>${password}</password>
+      <verificationId>${verificationid}</verificationId>
+      <sourceId>visa</sourceId>
+      <inputFields>
+         
+      <input>
+      <name>greenid_visa_number</name>
+      <value>${visaNumber}</value>
+   </input>
+  <input>
+      <name>greenid_visa_surname</name>
+      <value>${surname}</value>
+   </input>
+   <input>
+      <name>greenid_visa_dob</name>
+      <value>${dob}</value>
+   </input>
+   <input>
+      <name>greenid_visa_country</name>
+      <value>${country}</value>
+   </input>
+   <input>
+      <name>greenid_visa_tandc</name>
+      <value>${tandc}</value>
+   </input>
+   </dyn:setFields>
+</soapenv:Body>
+</soapenv:Envelope>`
+
+
+        try {
+            let getFields = await greenID.post('', xmlSetVisa)
+            let parsedsetFields = JSON.parse(convert.xml2json(getFields.data, { compact: true, spaces: 4 }))
+
+            res.status(200).json({
+                result: parsedsetFields
+            })
+        } catch (err) {
+            console.log(err)
+            let error
+            if (err) {
+                if (Array.isArray(err.response.data.match(/<faultstring>(.*?)<\/faultstring>/g))) {
+                    error = err.response.data.match(/<faultstring>(.*?)<\/faultstring>/g)[0].replace(/<\/?[^>]+(>|$)/g, "")
+                } else {
+                    error = err.response.data.match(/<faultstring>(.*?)<\/faultstring>/g).replace(/<\/?[^>]+(>|$)/g, "")
+                }
+
+                res.status(500).json({ error: error, message: 'internal server error' })
+
+                console.log(err.response.data)
+            }
+
+
+
+        } 
+    }
+
+    static async getSources(req, res, next) {
+
+        const { verificationid } = req.headers
+        console.log(req.headers < "INI HEADERS")
         try {
             let xmls = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:dyn="http://dynamicform.services.registrations.edentiti.com/">
             <soapenv:Header/>
@@ -191,17 +307,17 @@ class Controller {
             let overallVerificationStatus = parsedGetSources['env:Envelope']['env:Body']['ns2:getSourcesResponse']['return']['verificationResult']['overallVerificationStatus']['_text']
             console.log(parsedGetSources['env:Envelope']['env:Body']['ns2:getSourcesResponse']['return']['verificationResult']['overallVerificationStatus'], "INI GET SOURCES")
             const arrOfObj = parsedGetSources['env:Envelope']['env:Body']['ns2:getSourcesResponse']['return']['sourceList']['source'].map(el => {
-                    if (!el.value) {
-                        el.value = {_text : ''}
-                     }
-                     if (!el.value._text || !el.value) {
-                        el.value._text = ''
-                     }
-                     let obj = {
-                         [el.name._text] : el.state._text
-                     }
-                    return obj
-                })
+                if (!el.value) {
+                    el.value = { _text: '' }
+                }
+                if (!el.value._text || !el.value) {
+                    el.value._text = ''
+                }
+                let obj = {
+                    [el.name._text]: el.state._text
+                }
+                return obj
+            })
             console.log(arrOfObj, "<<<<<<")
             const fieldResults = parsedGetSources['env:Envelope']['env:Body']['ns2:getSourcesResponse']['return']['verificationResult']['individualResult'].filter(element => {
                 if (element['state']['_text'] === 'VERIFIED' || element['state']['_text'] === 'NOT_FOUND_ON_LIST') {
@@ -267,20 +383,20 @@ class Controller {
             let dobRequired = 0
             console.log(fullName, "INI JUMLAH FULL NAME ")
             if (fullName < 2) {
-                fullNameRequired = 2-fullName
+                fullNameRequired = 2 - fullName
                 console.log(`${2 - (fullName)} full name needed`)
 
             }
 
             console.log(dob, "JUMLAH DOB")
             if (dob < 1) {
-                dobRequired = 1- dob
+                dobRequired = 1 - dob
                 console.log(`${1 - (dob)} date of birth needed`)
 
             }
             console.log(fullAdress, "INI JUMLAH FULL ADDRESS")
             if (fullAdress < 2) {
-                fullAddressRequired =2- fullAdress
+                fullAddressRequired = 2 - fullAdress
                 console.log(`${2 - fullAdress} full adress needed`)
             }
 
@@ -293,13 +409,13 @@ class Controller {
             }
             console.log(requiredData)
             console.log("INI PARSED GET SOURCE", parsedGetSources['env:Envelope']['env:Body']['ns2:getSourcesResponse']['return']['verificationResult']['individualResult'].filter(element => {
-               if (element['state']['_text'] === 'VERIFIED') {
-                  return true
-               } else {
-                  return false
-               }
+                if (element['state']['_text'] === 'VERIFIED') {
+                    return true
+                } else {
+                    return false
+                }
             }).map(element => {
-               return element['name']['_text']
+                return element['name']['_text']
             }))
             res.status(200).json({
                 fullNameCount: fullName,
@@ -310,19 +426,19 @@ class Controller {
                 dobRequired: dobRequired,
                 minSourceAmount: minSourceAmount,
                 sources: arrOfObj,
-                overallVerificationStatus:  overallVerificationStatus
+                overallVerificationStatus: overallVerificationStatus
             })
         } catch (err) {
-            res.status(500).json({message: "internal server error"})
+            res.status(500).json({ message: "internal server error" })
             console.log(err.errors.response.data)
         }
     }
     //getSources()
 
     static async getFields(req, res, next) {
-        const {verificationid} = req.headers
-        
-        const {sourceId} = req.params
+        const { verificationid } = req.headers
+
+        const { sourceId } = req.params
         console.log(verificationid, sourceId, "INI VERIF ID DI GETFIELDS")
         // let dataSourceName = 'qldregodvs'//dari req params
         // const verificationId = '1H93AyUcA'//dari localstorage
@@ -344,22 +460,22 @@ class Controller {
             console.log(parsedgetFields['env:Envelope']['env:Body']['ns2:getFieldsResponse']['return']['sourceFields']['fieldList']['sourceField'])
             let sourceFields = ''
             if (Array.isArray(parsedgetFields['env:Envelope']['env:Body']['ns2:getFieldsResponse']['return']['sourceFields']['fieldList']['sourceField'])) {
-                 sourceFields = (parsedgetFields['env:Envelope']['env:Body']['ns2:getFieldsResponse']['return']['sourceFields']['fieldList']['sourceField'].map(el => {
+                sourceFields = (parsedgetFields['env:Envelope']['env:Body']['ns2:getFieldsResponse']['return']['sourceFields']['fieldList']['sourceField'].map(el => {
                     if (!el.value) {
-                        el.value = {_text : ''}
-                     }
-                     if (!el.value._text || !el.value) {
+                        el.value = { _text: '' }
+                    }
+                    if (!el.value._text || !el.value) {
                         el.value._text = ''
-                     }
-                     let obj = {
-                         [el.name._text] : el.value._text
-                     }
+                    }
+                    let obj = {
+                        [el.name._text]: el.value._text
+                    }
                     return obj
                 }))//lihat fields untuk source data dalam bentuk object
             } else {
-                 sourceFields = (parsedgetFields['env:Envelope']['env:Body']['ns2:getFieldsResponse']['return']['sourceFields']['fieldList']['sourceField'])//lihat fields untuk source data dalam bentuk object
+                sourceFields = (parsedgetFields['env:Envelope']['env:Body']['ns2:getFieldsResponse']['return']['sourceFields']['fieldList']['sourceField'])//lihat fields untuk source data dalam bentuk object
             }
-            
+
             let sourceList = parsedgetFields['env:Envelope']['env:Body']['ns2:getFieldsResponse']['return']['sourceList']['source']//  lihat source list dalam bentuk object
             console.log(sourceFields)
             //console.log(sourceList)
@@ -371,21 +487,21 @@ class Controller {
 
             let htmlEntity = concatedGetFields.match(/<rawData>(.*?)<\/rawData>/g)//ambil pada tag rawData yang berisi html entity
             console.log(htmlEntity)
-            
+
             let htmlEntityTagRemoved = htmlEntity[0].replace(/<\/?[^>]+(>|$)/g, "");//hilangkan tag <rawData></rawData> pada string 
-            
+
             let htmlForm = decode(htmlEntityTagRemoved)//ubah html entity jadi format html 
             let simplerForm = htmlForm.match(/<sourcefields>(.*?)<\/sourcefields>/g)[0]
-            
+
             console.log(htmlForm, "HTML FORM", simplerForm, "SIMPLE")
             res.status(200).json({
 
                 htmlForm: htmlForm,
-                sourceFields:sourceFields
+                sourceFields: sourceFields
 
             })
         } catch (error) {
-            res.status(500).json({message: "internal server error"})
+            res.status(500).json({ message: "internal server error" })
             console.log(error)
         }
     }
@@ -434,7 +550,7 @@ class Controller {
             const verificationId = parsedregisterResponse['env:Envelope']['env:Body']['ns2:registerVerificationResponse']['return']['verificationResult']['verificationId']['_text']
             res.status(201).json({ givenName: givenName, middleNames: middleNames, surname: surname, email: email, dob: dob, flatNumber: flatNumber, streetNumber: streetNumber, streetName: streetName, streetType: streetType, suburb: suburb, state: state, postcode: postcode, verificationId: verificationId })
         } catch (error) {
-            res.status(500).json({message: "internal server error"})
+            res.status(500).json({ message: "internal server error" })
             console.log(err)
         }
     }
