@@ -3,13 +3,17 @@ const axios = require('axios')
 const convert = require('xml-js');
 const parseString = require('xml2js').parseString;
 const greenID = require("./apis/greenID")
-const htmlEntities = require('html-entities') ;
+const htmlEntities = require('html-entities');
 const decode = require('html-entities-decoder')
+
 
 
 //require 2 full names, 1 DOB, and 2 addresses from 2 datasources
 let accountId = process.env.GREEN_ID_ACCOUNT
 let password = process.env.GREEN_ID_PASSWORD
+
+const API_KEY = process.env.MAILGUN_API_KEY
+console.log(API_KEY)
 
 let xmls = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:dyn="http://dynamicform.services.registrations.edentiti.com/">
 <soapenv:Header/>
@@ -74,49 +78,49 @@ async function getSources(req, res, next) {
          state: 0, //required
          postcode: 0 //required
       }
-      
+
 
       console.log(mergedFieldResults, "INI PARSED ATAS")
       //console.log(fieldResults, "INI PARSED BAWAH")
       mergedFieldResults.forEach(element => {
          for (let key in requiredData) {
             if (key == element.name._text) {
-                requiredData[key]++
+               requiredData[key]++
             }
-         }  
-       })
-       let fullName = (requiredData.givenName + requiredData.surname)/2
-       let fullAdress = (requiredData.streetNumber + requiredData.streetName + requiredData.suburb + requiredData.state + requiredData.postcode)/5
-       let dob = requiredData.dob
+         }
+      })
+      let fullName = (requiredData.givenName + requiredData.surname) / 2
+      let fullAdress = (requiredData.streetNumber + requiredData.streetName + requiredData.suburb + requiredData.state + requiredData.postcode) / 5
+      let dob = requiredData.dob
       //  fullAdress = 2
       //  fullName = 2
       //  dob = 0
-       console.log(fullName, "INI JUMLAH FULL NAME ")
-       if (fullName < 2) {
-          
+      console.log(fullName, "INI JUMLAH FULL NAME ")
+      if (fullName < 2) {
+
          console.log(`${2 - (fullName)} full name needed`)
 
       }
 
       console.log(dob, "JUMLAH DOB")
       if (dob < 1) {
-         
-        console.log(`${1 - (dob)} date of birth needed`)
 
-     } 
+         console.log(`${1 - (dob)} date of birth needed`)
+
+      }
       console.log(fullAdress, "INI JUMLAH FULL ADDRESS")
-      if (fullAdress < 2)  {
-         
+      if (fullAdress < 2) {
+
          console.log(`${2 - fullAdress} full adress needed`)
       }
-     
+
 
       if (fullAdress < 2 || fullName < 2 || dob < 1) {
-         
-         let min = Math.min(fullAdress-2, fullName-2, dob-1)
+
+         let min = Math.min(fullAdress - 2, fullName - 2, dob - 1)
          console.log(`from at least ${0 - min} data source`)
       }
-       console.log(requiredData)
+      console.log(requiredData)
       // console.log("INI PARSED GET SOURCE", parsedGetSources['env:Envelope']['env:Body']['ns2:getSourcesResponse']['return']['verificationResult']['individualResult'].filter(element => {
       //    if (element['state']['_text'] === 'VERIFIED') {
       //       return true
@@ -134,20 +138,20 @@ async function getSources(req, res, next) {
 //getSources()
 
 
-async function registerCustomer (req, res, next) {
+async function registerCustomer(req, res, next) {
    // const {givenName, middleNames, surname, email, dob, flatNumber, streetNumber, streetName, streetType, suburb, state, postcode,  } = req.body
    const body = {
-      givenName: "Hello", 
-      middleNames: '2-PPPPP', 
-      surname: 'Happy', 
-      email:"happy@mail.com",
-      dob: '1987-08-31', 
-      flatNumber: `${Math.floor(Math.random() * 100)}`, 
-      streetNumber: `${Math.floor(Math.random() * 100)}`, 
-      streetName: 'Sesame', 
-      streetType: '', 
-      suburb: "Sauce", 
-      state: 'TAS', 
+      givenName: "Hello",
+      middleNames: '2-PPPPP',
+      surname: 'Happy',
+      email: "happy@mail.com",
+      dob: '1987-08-31',
+      flatNumber: `${Math.floor(Math.random() * 100)}`,
+      streetNumber: `${Math.floor(Math.random() * 100)}`,
+      streetName: 'Sesame',
+      streetType: '',
+      suburb: "Sauce",
+      state: 'TAS',
       postcode: '7799'
    }
    let dobSplit = body.dob.split('-')
@@ -182,10 +186,11 @@ async function registerCustomer (req, res, next) {
       <generateVerificationToken>false</generateVerificationToken>
    </dyn:registerVerification>
 </soapenv:Body>
-</soapenv:Envelope>` 
+</soapenv:Envelope>`
    try {
       let registerResponse = await greenID.post('', xmlsRegister)
       let parsedregisterResponse = JSON.parse(convert.xml2json(registerResponse.data, { compact: true, spaces: 4 }))
+
       console.log(parsedregisterResponse['env:Envelope']['env:Body']['ns2:registerVerificationResponse']['return']['verificationResult']['individualResult'])
       let verificationId = parsedregisterResponse['env:Envelope']['env:Body']['ns2:registerVerificationResponse']['return']['verificationResult']['verificationId']['_text']
       console.log(verificationId, "INI VERIF ID")
@@ -194,31 +199,18 @@ async function registerCustomer (req, res, next) {
    }
 }
 //registerCustomer()
-let dataSourceName = 'qldregodvs'
-async function getFields (req, res, next) {
-   // const {givenName, middleNames, surname, email, dob, flatNumber, streetNumber, streetName, streetType, suburb, state, postcode,  } = req.body
-   const body = {
-      givenName: "Hello", 
-      middleNames: '2-PPPPP', 
-      surname: 'Happy', 
-      email:"happy@mail.com",
-      dob: '1987-08-31', 
-      flatNumber: `${Math.floor(Math.random() * 100)}`, 
-      streetNumber: `${Math.floor(Math.random() * 100)}`, 
-      streetName: 'Sesame', 
-      streetType: '', 
-      suburb: "Sauce", 
-      state: 'TAS', 
-      postcode: '7799'
-   }
-   let dobSplit = body.dob.split('-')
+
+async function getFields(req, res, next) {
+   let dataSourceName = 'qldregodvs'//dari req params
+   const verificationId = '1H93AyUcA'//dari localstorage
+
    let xmlsGetFields = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:dyn="http://dynamicform.services.registrations.edentiti.com/">
    <soapenv:Header/>
    <soapenv:Body>
       <dyn:getFields>
          <accountId>${accountId}</accountId>
          <password>${password}</password>
-         <verificationId>1H93AyUcA</verificationId>
+         <verificationId>${verificationId}</verificationId>
          <sourceId>${dataSourceName}</sourceId>
       </dyn:getFields>
    </soapenv:Body>
@@ -226,36 +218,93 @@ async function getFields (req, res, next) {
    try {
       let getFields = await greenID.post('', xmlsGetFields)
       let parsedgetFields = JSON.parse(convert.xml2json(getFields.data, { compact: true, spaces: 4 }))
-      let sourceFields = ( parsedgetFields['env:Envelope']['env:Body']['ns2:getFieldsResponse']['return']['sourceFields']['fieldList']['sourceField'].map(el => {
-        return [el.name, el.value]
-      }))
-      let sourceList = parsedgetFields['env:Envelope']['env:Body']['ns2:getFieldsResponse']['return']['sourceList']['source']//  daftar resource list
+      console.log(getFields)
+      let sourceFields = (parsedgetFields['env:Envelope']['env:Body']['ns2:getFieldsResponse']['return']['sourceFields']['fieldList']['sourceField'].map(el => {
+         return [el.name, el.value]
+      }))//lihat fields untuk source data dalam bentuk object
+      let sourceList = parsedgetFields['env:Envelope']['env:Body']['ns2:getFieldsResponse']['return']['sourceList']['source']//  lihat source list dalam bentuk object
       console.log(sourceFields)
-      console.log(sourceFields)
-      let reg = /<rawData>[a-z]*<\/rawData>/gi//.exec(getFields.data)
-      let concated = getFields.data.split('\n').join('')
-      console.log( concated, " INI GET FIELDS DATA")
-      let strs =``
-      let numberOfLineBreaks = (concated.match(/(\r\n|\n|\r)/gm)||[]).length;
-      let htmlForm = getFields.data.match(reg)
-      console.log([numberOfLineBreaks])
-      let str = `<rawData>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;sourcefields&gt; &lt;div class=&quot;row&quot;&gt; &lt;div class=&quot;form-r oup col-sm-3&quot;&gt; &lt;label class=&quot;control-label&quot; for=&quot;greenid_qldregodvs_number&quot;&gt;Licence number &lt;span class=&quot;greenid-helpicon&quot; title=&quot;qldregodvs_number_tooltip&quot;&gt;&lt;/span&gt;</rawData>`
-      
-      let htmlEntity = concated.match(/<rawData>(.*?)<\/rawData>/g)
-      console.log( htmlEntity, "INI FORM", )
-      let htmls = htmlEntity.replaceAll("<[^>]*>", "");
-      let form = decode(htmls)
-      console.log(form)
+      //console.log(sourceList)
+
+      let concatedGetFields = getFields.data.split('\n').join('')//buat agar line break hilang dari getFields Data
+      console.log(concatedGetFields, " INI GET FIELDS DATA")
+      let numberOfLineBreaks = (concatedGetFields.match(/(\r\n|\n|\r)/gm) || []).length;
+      console.log([numberOfLineBreaks])//mengecek apakah masih ada linebreak
+
+      let htmlEntity = concatedGetFields.match(/<rawData>(.*?)<\/rawData>/g)//ambil pada tag rawData yang berisi html entity
+
+      let htmlEntityTagRemoved = htmlEntity[0].replace(/<\/?[^>]+(>|$)/g, "");//hilangkan tag <rawData></rawData> pada string 
+      let htmlForm = decode(htmlEntityTagRemoved)//ubah html entity jadi format html 
+      console.log(htmlForm, "HTML FORM")
    } catch (error) {
       console.log(error)
    }
 }
-getFields()
+//getFields()
 
-// console.log(decode(`&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;sourcefields&gt; &lt;div class=&quot;row&quot;&gt; &lt;div class=&quot;form-group col-sm-3&quot;&gt; &lt;label class=&quot;control-label&quot; for=&quot;greenid_qldregodvs_number&quot;&gt;Licence number &lt;span class=&quot;greenid-helpicon&quot; title=&quot;qldregodvs_number_tooltip&quot;&gt;&lt;/span&gt;
-// &lt;/label&gt; &lt;input aria-required=&quot;true&quot; class=&quot;form-control ausdriverslicencenumbervalidation required&quot; id=&quot;greenid_qldregodvs_number&quot; name=&quot;greenid_qldregodvs_number&quot; type=&quot;text&quot; value=&quot;&quot;/&gt; &lt;/div&gt; &lt;/div&gt; &lt;div class=&quot;row&quot;&gt; &lt;div class=&quot;form-group col-sm-4&quot;&gt; &lt;label cls 
-// s=&quot;control-label&quot; for=&quot;greenid_qldregodvs_givenname&quot;&gt;First name&lt;/label&gt; &lt;input aria-required=&quot;true&quot; class=&quot;form-control namevalidation required&quot; id=&quot;greenid_qldregodvs_givenname&quot; name=&quot;greenid_qldregodvs_givenname&quot; type=&quot;text&quot; value=&quot;Hortensia&quot;/&gt; &lt;/div&gt; &lt;div class=&quot;form-group col-sm-4&quot;&gt; &lt;label class=&quot;control-label&quot; for=&quot;greenid_qldregodvs_middlename&quot;&gt;Middle name(s)&lt;/label&gt; &lt;input aria-required=&quot;false&quot; class=&quot;form-control&quot; id=&quot;greenid_qldregodvs_middlename&quot; name=&quot;greenid_qldregodvs_middlename&quot; type=&quot;text&quot; value=&quot;Azure&quot;/&gt; &lt;/div&gt; &lt;div class=&quot;form-group col-sm-4&quot;&gt; &lt;label class=&quot;control-label&quot; for=&quot;greenid_qldregodvs_surname&quot;&gt;Surname&lt;/label&gt; &lt;input aria-required=&quot;true&quot; class=&quot;form-control namevalidation required&quot; id=&quot;greenid_qldregodvs_surname&quot; name=&quot;greenid_qldregodvs_surname&quot; type=&quot;text&quot; value=&quot;Lepaute&quot;/&gt; &lt;/div&gt; &lt;/div&gt; &lt;div class=&quot;row&quot;&gt; &lt;div class=&quot;form-group col-sm-3 col-lg-2&quot;&gt; &lt;label class=&quot;control-label&quot; for=&quot;greenid_qldregodvs_dob&quot;&gt;Date of birth (dd/mm/yyyy)&lt;/label&gt; &lt;div class=&quot;input-group date&quot;&gt; &lt;input aria-required=&quot;true&quot; class=&quot;form-control dobvalidation required&quot; id=&quot;greenid_qldregodvs_dob&quot; name=&quot;greenid_qldregodvs_dob&quot; type=&quot;text&quot; value=&quot;03/09/1991&quot;/&gt; &lt;span class=&quot;input-group-addon greenid-datepicker&quot;&gt;
-// &lt;span class=&quot;glyphicon glyphicon-calendar&quot;&gt;&lt;/span&gt;
-// &lt;/span&gt; &lt;/div&gt; &lt;/div&gt; &lt;/div&gt; &lt;div class=&quot;checkbox&quot;&gt; &lt;label class=&quot;control-label&quot; for=&quot;greenid_qldregodvs_tandc&quot;&gt; &lt;input aria-required=&quot;true&quot; class=&quot;required&quot; id=&quot;greenid_qldregodvs_tandc&quot; name=&quot;greenid_qldregodvs_tandc&quot; type=&quot;checkbox&quot;/&gt; I consent to the information above being checked with the Issuer or Official Record Holder &lt;/label&gt; &lt;/div&gt; &lt;/sourcefields&gt;`))
- 
-    
+let verifiedDVSNum = '11111111'
+async function setFields(req, res, next) {
+   //ambil data body dari req body form
+   let dataSourceName = 'qldregodvs'//dari req params
+   const verificationId = '1H93AyUcA'//dari localstorage, example hortensia
+   const body = {
+      givenName: "Hortensia",
+      middleNames: 'Azure',
+      surname: 'Lepaute',
+      email: "",
+      dob: '03/09/1991',
+      flatNumber: `${Math.floor(Math.random() * 100)}`,
+      streetNumber: `${Math.floor(Math.random() * 100)}`,
+      streetName: 'Sesame',
+      streetType: '',
+      suburb: "Sauce",
+      state: 'TAS',
+      postcode: '7799'
+   }//ambil dari form
+   let xmlsSetFields = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:dyn="http://dynamicform.services.registrations.edentiti.com/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <dyn:setFields>
+         <accountId>${accountId}</accountId>
+         <password>${password}</password>
+         <verificationId>${verificationId}</verificationId>
+         <sourceId>${dataSourceName}</sourceId>
+         <inputFields>
+            <input>
+               <name>greenid_qldregodvs_number</name>
+               <value>${verifiedDVSNum}</value>
+            </input>
+            <input>
+               <name>greenid_qldregodvs_dob</name>
+               <value>${body.dob}</value>
+            </input>
+            <input>
+               <name>greenid_qldregodvs_surname</name>
+               <value>${body.surname}</value>
+            </input>
+            <input>
+               <name>greenid_qldregodvs_middlename</name>
+               <value></value>
+            </input>
+            <input>
+               <name>greenid_qldregodvs_givenname</name>
+               <value>${body.givenName}</value>
+            </input>
+            <input>
+               <name>greenid_qldregodvs_tandc</name>
+               <value>on</value>
+            </input>
+         </inputFields>
+      </dyn:setFields>
+   </soapenv:Body>
+</soapenv:Envelope>`
+   try {
+      let getFields = await greenID.post('', xmlsSetFields)
+      let parsedsetFields = JSON.parse(convert.xml2json(getFields.data, { compact: true, spaces: 4 }))
+      console.log(parsedsetFields['env:Body']['ns2:setFieldsResponse'])//set Fields 
+     
+   } catch (error) {
+      console.log(error)
+   }
+}
+setFields()
