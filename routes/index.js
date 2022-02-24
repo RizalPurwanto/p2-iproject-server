@@ -3,9 +3,9 @@ const router = express.Router();
 
 
 const verification = require("./verification");
-const driverLicence = require("./driverLicence")
+const register = require("./register")
 //router.use("/", authRouter);
 router.use("/verify", verification)
-
+router.use("/register", register)
 
 module.exports = router;

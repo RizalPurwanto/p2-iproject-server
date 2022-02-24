@@ -5,6 +5,8 @@ const parseString = require('xml2js').parseString;
 const greenID = require("../apis/greenID")
 const htmlEntities = require('html-entities');
 const decode = require('html-entities-decoder')
+const jsdom = require("jsdom");
+const {JSDOM} = jsdom
 //require 2 full names, 1 DOB, and 2 addresses from 2 datasources
 let accountId = process.env.GREEN_ID_ACCOUNT
 let password = process.env.GREEN_ID_PASSWORD
@@ -26,7 +28,7 @@ class Controller {
    <dyn:setFields>
       <accountId>${accountId}</accountId>
       <password>${password}</password>
-      <verificationId>${verificationid}</verificationId>
+      <verificationId>${verificationid}</verificationid>
       <sourceId>${sourceId}</sourceId>
       <inputFields>
          <input>
@@ -96,7 +98,7 @@ class Controller {
    <dyn:setFields>
       <accountId>${accountId}</accountId>
       <password>${password}</password>
-      <verificationId>${verificationid}</verificationId>
+      <verificationId>${verificationid}</verificationid>
       <sourceId>${sourceId}</sourceId>
       <inputFields>
          <input>
@@ -146,7 +148,7 @@ class Controller {
    <dyn:setFields>
       <accountId>${accountId}</accountId>
       <password>${password}</password>
-      <verificationId>${verificationid}</verificationId>
+      <verificationId>${verificationid}</verificationid>
       <sourceId>aec</sourceId>
       <inputFields>
          
@@ -221,6 +223,7 @@ class Controller {
 
     static async setFieldsVisa(req, res, next) {
         const { visaNumber, surname, dob, country, tandc} = req.body
+        const {verificationid} = req.headers
         
         
         let xmlSetVisa = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:dyn="http://dynamicform.services.registrations.edentiti.com/">
@@ -229,7 +232,7 @@ class Controller {
    <dyn:setFields>
       <accountId>${accountId}</accountId>
       <password>${password}</password>
-      <verificationId>${verificationid}</verificationId>
+      <verificationId>${verificationid}</verificationid>
       <sourceId>visa</sourceId>
       <inputFields>
          
@@ -253,6 +256,7 @@ class Controller {
       <name>greenid_visa_tandc</name>
       <value>${tandc}</value>
    </input>
+   </inputFields>
    </dyn:setFields>
 </soapenv:Body>
 </soapenv:Envelope>`
@@ -261,7 +265,7 @@ class Controller {
         try {
             let getFields = await greenID.post('', xmlSetVisa)
             let parsedsetFields = JSON.parse(convert.xml2json(getFields.data, { compact: true, spaces: 4 }))
-
+            
             res.status(200).json({
                 result: parsedsetFields
             })
@@ -296,7 +300,7 @@ class Controller {
             <dyn:getSources>
                 <accountId>${accountId}</accountId>
                 <password>${password}</password>
-                <verificationId>${verificationid}</verificationId>
+                <verificationId>K4dGQWtn</verificationId>
             </dyn:getSources>
             </soapenv:Body>
             </soapenv:Envelope>`
@@ -304,8 +308,12 @@ class Controller {
             let getSources = await greenID.post('', xmls)
             let parsedGetSources = JSON.parse(convert.xml2json(getSources.data, { compact: true, spaces: 4 }))
             //let parsedGetSources = JSON.parse(stringifiedGetSources)
+            console.log(parsedGetSources['env:Envelope']['env:Body']['ns2:getSourcesResponse']['return']['sourceList']['source'], "INI REGISTRATION DATA")
+            let registrationDetails = parsedGetSources['env:Envelope']['env:Body']['ns2:getSourcesResponse']['return']['registrationDetails']
             let overallVerificationStatus = parsedGetSources['env:Envelope']['env:Body']['ns2:getSourcesResponse']['return']['verificationResult']['overallVerificationStatus']['_text']
             console.log(parsedGetSources['env:Envelope']['env:Body']['ns2:getSourcesResponse']['return']['verificationResult']['overallVerificationStatus'], "INI GET SOURCES")
+            const currentResidentialAddress = parsedGetSources['env:Envelope']['env:Body']['ns2:getSourcesResponse']['return']['registrationDetails']['currentResidentialAddress']
+            
             const arrOfObj = parsedGetSources['env:Envelope']['env:Body']['ns2:getSourcesResponse']['return']['sourceList']['source'].map(el => {
                 if (!el.value) {
                     el.value = { _text: '' }
@@ -362,7 +370,7 @@ class Controller {
                 postcode: 0 //required
             }
 
-
+            
             console.log(mergedFieldResults, "INI PARSED ATAS")
             //console.log(fieldResults, "INI PARSED BAWAH")
             mergedFieldResults.forEach(element => {
@@ -425,12 +433,14 @@ class Controller {
                 fullAddressRequired: fullAddressRequired,
                 dobRequired: dobRequired,
                 minSourceAmount: minSourceAmount,
+                registrationDetails: registrationDetails,
+                currentResidentialAddress: currentResidentialAddress,
                 sources: arrOfObj,
                 overallVerificationStatus: overallVerificationStatus
             })
         } catch (err) {
             res.status(500).json({ message: "internal server error" })
-            console.log(err.errors.response.data)
+            console.log(err)
         }
     }
     //getSources()
@@ -441,7 +451,7 @@ class Controller {
         const { sourceId } = req.params
         console.log(verificationid, sourceId, "INI VERIF ID DI GETFIELDS")
         // let dataSourceName = 'qldregodvs'//dari req params
-        // const verificationId = '1H93AyUcA'//dari localstorage
+        // const verificationid = '1H93AyUcA'//dari localstorage
 
         let xmlsGetFields = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:dyn="http://dynamicform.services.registrations.edentiti.com/">
        <soapenv:Header/>
@@ -449,7 +459,7 @@ class Controller {
           <dyn:getFields>
              <accountId>${accountId}</accountId>
              <password>${password}</password>
-             <verificationId>${verificationid}</verificationId>
+             <verificationId>${verificationid}</verificationid>
              <sourceId>${sourceId}</sourceId>
           </dyn:getFields>
        </soapenv:Body>
@@ -492,11 +502,13 @@ class Controller {
 
             let htmlForm = decode(htmlEntityTagRemoved)//ubah html entity jadi format html 
             let simplerForm = htmlForm.match(/<sourcefields>(.*?)<\/sourcefields>/g)[0]
-
-            console.log(htmlForm, "HTML FORM", simplerForm, "SIMPLE")
+            let objFromHtml =  new JSDOM(simplerForm);
+            //console.log(htmlForm, "HTML FORM", simplerForm, "SIMPLE")
+            console.log(objFromHtml.window.document.querySelector("select").textContent, " INI PARSED")
+            console.log(simplerForm)
             res.status(200).json({
-
-                htmlForm: htmlForm,
+                objFromHtml: objFromHtml,
+                htmlForm: simplerForm,
                 sourceFields: sourceFields
 
             })
@@ -509,8 +521,56 @@ class Controller {
     static async registerCustomer(req, res, next) {
         const { givenName, middleNames, surname, email, dob, flatNumber, streetNumber, streetName, streetType, suburb, state, postcode, } = req.body
 
-        let dobSplit = dob.split('/')
-        let xmlsRegister = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:dyn="http://dynamicform.services.registrations.edentiti.com/">
+        
+
+        
+        
+        try {
+            let errorsMessages = []
+            if(!givenName) {
+                errorsMessages.push('Given name required')
+            }
+            if(!surname) {
+                errorsMessages.push(`surname required`)
+            }
+            if(!dob) {
+                errorsMessages.push(`Date of birth required`)
+                
+            }
+            if(!flatNumber) {
+                errorsMessages.push(`Flat number required`)
+                
+            }
+            if(!streetNumber) {
+                errorsMessages.push(`Street number required`)
+                
+            }
+            if(!streetName) {
+                errorsMessages.push(`Street name required`)
+                
+            }
+            if(!suburb) {
+                errorsMessages.push(`Suburb name required`)
+                
+            }
+            if(!state) {
+                errorsMessages.push(`State name required`)
+                
+            }
+            if(!postcode) {
+                errorsMessages.push(`Postcode required`)
+                
+            }
+            
+            if (errorsMessages.length > 0) {
+                throw({
+                    code: 400,
+                    name: "BAD_REQUEST",
+                    message: errorsMessages
+                })
+            }
+            let dobSplit = dob.split('/')
+            let xmlsRegister = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:dyn="http://dynamicform.services.registrations.edentiti.com/">
     <soapenv:Header/>
     <soapenv:Body>
        <dyn:registerVerification>
@@ -534,24 +594,25 @@ class Controller {
              <postcode>${postcode}</postcode>
           </currentResidentialAddress>
           <dob>
-             <day>${dobSplit[0]}</day>
+             <day>${dobSplit[2]}</day>
              <month>${dobSplit[1]}</month>
-             <year>${dobSplit[2]}</year>
+             <year>${dobSplit[0]}</year>
           </dob>
           <generateVerificationToken>false</generateVerificationToken>
        </dyn:registerVerification>
     </soapenv:Body>
     </soapenv:Envelope>`
-        try {
             let registerResponse = await greenID.post('', xmlsRegister)
             let parsedregisterResponse = JSON.parse(convert.xml2json(registerResponse.data, { compact: true, spaces: 4 }))
 
             console.log(parsedregisterResponse['env:Envelope']['env:Body']['ns2:registerVerificationResponse']['return']['verificationResult']['individualResult'])
+            console.log(parsedregisterResponse['env:Envelope']['env:Body']['ns2:registerVerificationResponse']['return']['verificationResult']['verificationId']['_text'])
             const verificationId = parsedregisterResponse['env:Envelope']['env:Body']['ns2:registerVerificationResponse']['return']['verificationResult']['verificationId']['_text']
             res.status(201).json({ givenName: givenName, middleNames: middleNames, surname: surname, email: email, dob: dob, flatNumber: flatNumber, streetNumber: streetNumber, streetName: streetName, streetType: streetType, suburb: suburb, state: state, postcode: postcode, verificationId: verificationId })
         } catch (error) {
-            res.status(500).json({ message: "internal server error" })
-            console.log(err)
+            next(error)
+            // res.status(500).json({ message: "internal server error" })
+            console.log(error)
         }
     }
 
