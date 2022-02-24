@@ -500,6 +500,7 @@ export default {
     },
     visaHandler() {
       this.$router.push('/visa')
+      //
     },
     dnbHandler() {
       this.$router.push('/dnb')
