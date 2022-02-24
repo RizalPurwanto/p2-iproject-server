@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" media="screen"
+        href="https://simpleui-au.vixverify.com/df/assets/stylesheets/greenid.css" />
+    <title>Document</title>
+</head>
+
+<body>
+    <form action="" method="post">
+
+        <sourcefields>
+            <div class="row">
+                <div class="form-group col-sm-4"> <label class="control-label" for="greenid_aec_givenname">First name
+                        (no middle names)</label> <input aria-required="true"
+                        class="form-control namevalidation required" id="greenid_aec_givenname"
+                        name="greenid_aec_givenname" type="text" value="Test" /> </div>
+                <div class="form-group col-sm-4"> <label class="control-label" for="greenid_aec_surname">Surname</label>
+                    <input aria-required="true" class="form-control namevalidation required" id="greenid_aec_surname"
+                        name="greenid_aec_surname" type="text" value="Customer" /> </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-sm-2"> <label class="control-label" for="greenid_aec_flatnumber">Unit
+                        number</label> <input class="form-control streetnumbervalidation" id="greenid_aec_flatnumber"
+                        name="greenid_aec_flatnumber" type="text" value="" /> </div>
+                <div class="form-group col-sm-2"> <label class="control-label" for="greenid_aec_streetnumber">Street
+                        number</label> <input aria-required="true" class="form-control streetnumbervalidation required"
+                        id="greenid_aec_streetnumber" name="greenid_aec_streetnumber" type="text" value="31/1" /> </div>
+                <div class="form-group col-sm-4"> <label class="control-label" for="greenid_aec_streetname">Street
+                        name</label> <input aria-required="true" class="form-control 
+            streetnamevalidation required" id="greenid_aec_streetname" name="greenid_aec_streetname" type="text"
+                        value="Sesame" /> </div>
+                <div class="form-group col-sm-3"> <label class="control-label" for="greenid_aec_streettype">Street
+                        type</label> <select aria-required="false" class="form-control" id="greenid_aec_streettype"
+                        name="greenid_aec_streettype">
+                        <option value="AVE">Avenue</option>
+                        <option value="CIR">Circle</option>
+                        <option value="CCT">Circuit</option>
+                        <option value="CL">Close</option>
+                        <option value="CT">Court</option>
+                        <option value="CRES">Crescent</option>
+                        <option value="DR">Drive</option>
+                        <option value="ESP">Esplanade</option>
+                        <option value="EXP">Expressway</option>
+                        <option value="HWY">Highway</option>
+                        <option value="LANE">Lane</option>
+                        <option value="PDE">Parade</option>
+                        <option value="PL">Place</option>
+                        <option value="RD">Road</option>
+                        <option value="SQ">Square</option>
+                        <option selected="selected" value="ST">Street</option>
+                        <option value="TCE">Terrace</option>
+                        <option value="WAY">Way</option>
+                        <option value="">Other</option>
+                    </select> </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-sm-4"> <label class="control-label" for="greenid_aec_suburb">Suburb</label>
+                    <input aria-required="true" class="form-control 
+            streetnamevalidation required" id="greenid_aec_suburb" name="greenid_aec_suburb" type="text"
+                        value="Sauce" /> </div>
+                <div class="form-group col-sm-2"> <label class="control-label" for="greenid_aec_state">State</label>
+                    <select aria-required="true" class="form-control required" id="greenid_aec_state"
+                        name="greenid_aec_state">
+                        <option value="NSW">NSW</option>
+                        <option value="VIC">VIC</option>
+                        <option value="QLD">QLD</option>
+                        <option value="WA">WA</option>
+                        <option value="SA">SA</option>
+                        <option selected="selected" value="TAS">TAS</option>
+                        <option value="ACT">ACT</option>
+                        <option value="NT">NT</option>
+                    </select> </div>
+                <div class="form-group col-sm-2"> <label class="control-label"
+                        for="greenid_aec_postcode">Postcode</label> <input aria-required="true"
+                        class="form-control postcodevalidation required" id="greenid_aec_postcode"
+                        name="greenid_aec_postcode" type="text" value="7799" /> </div>
+            </div>
+        </sourcefields>
+        <input type="submit" value="submit" onsubmit="">
+    </form>
+
+</body>
+
+</html>
