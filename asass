@@ -1,0 +1,41 @@
+[33mcommit 73da98d56596ed3aecd33fdae07945b40f37a217[m[33m ([m[1;36mHEAD -> [m[1;32mdevelopment[m[33m)[m
+Author: RizalPurwanto <rizal.purwanto.id>
+Date:   Thu Feb 24 17:58:59 2022 +0700
+
+    a
+
+[33mcommit 15e8dddb862e8421bb220a1cf643ee7ff51a34a6[m[33m ([m[1;31morigin/development[m[33m)[m
+Author: RizalPurwanto <rizal.purwanto.id>
+Date:   Thu Feb 24 12:04:34 2022 +0700
+
+    adding setters to form visa
+
+[33mcommit 1213f7b41f2342a79f4e6c15c4c494ff9c95fed1[m
+Author: RizalPurwanto <rizal.purwanto.id>
+Date:   Thu Feb 24 10:27:41 2022 +0700
+
+    adding setters to form visa
+
+[33mcommit 273412d299c28928e0db816e248b969c4747973e[m[33m ([m[1;31mheroku/main[m[33m)[m
+Author: RizalPurwanto <rizal.purwanto.id>
+Date:   Wed Feb 23 08:12:04 2022 +0700
+
+    controllers for setfields dnb an visa  added
+
+[33mcommit ae1420b669327543eebc00898210668329643fa7[m
+Author: RizalPurwanto <rizal.purwanto.id>
+Date:   Wed Feb 23 07:28:05 2022 +0700
+
+    controllers for setfields aec added
+
+[33mcommit 4d3c4e04c149333f4eaf87c7aa8f552a6e25ccc2[m
+Author: RizalPurwanto <rizal.purwanto.id>
+Date:   Tue Feb 22 10:50:39 2022 +0700
+
+    server setup
+
+[33mcommit 510241c18ec5f394d56b2337dc633f2955ce637a[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m, [m[1;32mRizalPurwanto[m[33m)[m
+Author: Ziady Mubaraq <ziady.mubaraq@gmail.com>
+Date:   Thu Feb 3 10:56:34 2022 +0700
+
+    Initial commit
