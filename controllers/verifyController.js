@@ -224,7 +224,8 @@ class Controller {
     static async setFieldsVisa(req, res, next) {
         const { visaNumber, surname, dob, country, tandc} = req.body
         const {verificationid} = req.headers
-        
+        console.log(req.headers, "INI VERIFICATION ID")
+        console.log(req.body, "INI REQ BODY")
         
         let xmlSetVisa = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:dyn="http://dynamicform.services.registrations.edentiti.com/">
 <soapenv:Header/>
@@ -232,7 +233,7 @@ class Controller {
    <dyn:setFields>
       <accountId>${accountId}</accountId>
       <password>${password}</password>
-      <verificationId>${verificationid}</verificationid>
+      <verificationId>${verificationid}</verificationId>
       <sourceId>visa</sourceId>
       <inputFields>
          
@@ -272,16 +273,22 @@ class Controller {
         } catch (err) {
             console.log(err)
             let error
+            let errorDetails
             if (err) {
                 if (Array.isArray(err.response.data.match(/<faultstring>(.*?)<\/faultstring>/g))) {
                     error = err.response.data.match(/<faultstring>(.*?)<\/faultstring>/g)[0].replace(/<\/?[^>]+(>|$)/g, "")
                 } else {
                     error = err.response.data.match(/<faultstring>(.*?)<\/faultstring>/g).replace(/<\/?[^>]+(>|$)/g, "")
                 }
+                // if (Array.isArray(err.response.data.match(/<details>(.*?)<\/details>/g))) {
+                //     errorDetails = err.response.data.match(/<details>(.*?)<\/details>/g)[0].replace(/<\/?[^>]+(>|$)/g, "")
+                // } else {
+                //     errorDetails = err.response.data.match(/<details>(.*?)<\/details>/g).replace(/<\/?[^>]+(>|$)/g, "")
+                // }
 
                 res.status(500).json({ error: error, message: 'internal server error' })
 
-                console.log(err.response.data)
+                console.log(error, )
             }
 
 
@@ -312,7 +319,10 @@ class Controller {
             let registrationDetails = parsedGetSources['env:Envelope']['env:Body']['ns2:getSourcesResponse']['return']['registrationDetails']
             let overallVerificationStatus = parsedGetSources['env:Envelope']['env:Body']['ns2:getSourcesResponse']['return']['verificationResult']['overallVerificationStatus']['_text']
             console.log(parsedGetSources['env:Envelope']['env:Body']['ns2:getSourcesResponse']['return']['verificationResult']['overallVerificationStatus'], "INI GET SOURCES")
-            const currentResidentialAddress = parsedGetSources['env:Envelope']['env:Body']['ns2:getSourcesResponse']['return']['registrationDetails']['currentResidentialAddress']
+            let currentResidentialAddress = parsedGetSources['env:Envelope']['env:Body']['ns2:getSourcesResponse']['return']['registrationDetails']['currentResidentialAddress']
+            Object.keys(currentResidentialAddress).map(function(key, index) {
+                currentResidentialAddress[key] = currentResidentialAddress[key]["_text"];
+              });
             
             const arrOfObj = parsedGetSources['env:Envelope']['env:Body']['ns2:getSourcesResponse']['return']['sourceList']['source'].map(el => {
                 if (!el.value) {
@@ -440,7 +450,20 @@ class Controller {
             })
         } catch (err) {
             res.status(500).json({ message: "internal server error" })
-            console.log(err)
+            //console.log(err)
+            let error
+            if (err) {
+                if (Array.isArray(err.response.data.match(/<faultstring>(.*?)<\/faultstring>/g))) {
+                    error = err.response.data.match(/<faultstring>(.*?)<\/faultstring>/g)[0].replace(/<\/?[^>]+(>|$)/g, "")
+                } else {
+                    error = err.response.data.match(/<faultstring>(.*?)<\/faultstring>/g).replace(/<\/?[^>]+(>|$)/g, "")
+                }
+
+                res.status(500).json({ error: error, message: 'internal server error' })
+
+                console.log(err.response.data)
+            }
+            console.log(error, "INI ERROR")
         }
     }
     //getSources()
