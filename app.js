@@ -7,7 +7,7 @@ const errorHandler = require("./middlewares/errorHandler");
 app.use(cors()); //memfilter akses. jika dalam kurung kosong, semua bisa masuk
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
+//test
 app.use('/', router)
 
 app.use(errorHandler)
