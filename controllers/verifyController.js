@@ -3,10 +3,12 @@ const axios = require('axios')
 const convert = require('xml-js');
 const parseString = require('xml2js').parseString;
 const greenID = require("../apis/greenID")
+const restDb = require('../apis/restDb')
 const htmlEntities = require('html-entities');
 const decode = require('html-entities-decoder')
 const jsdom = require("jsdom");
-const {JSDOM} = jsdom
+const { JSDOM } = jsdom
+const { Customer } = require('../models/index')
 //require 2 full names, 1 DOB, and 2 addresses from 2 datasources
 let accountId = process.env.GREEN_ID_ACCOUNT
 let password = process.env.GREEN_ID_PASSWORD
@@ -28,7 +30,7 @@ class Controller {
    <dyn:setFields>
       <accountId>${accountId}</accountId>
       <password>${password}</password>
-      <verificationId>${verificationid}</verificationid>
+      <verificationId>${verificationid}</verificationId>
       <sourceId>${sourceId}</sourceId>
       <inputFields>
          <input>
@@ -91,14 +93,14 @@ class Controller {
     static async setFieldsDnb(req, res, next) {
         const { tandc } = req.body
         const { verificationid } = req.headers
-        const  sourceId  = 'dnb'
+        const sourceId = 'dnb'
         let xmlSetDnb = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:dyn="http://dynamicform.services.registrations.edentiti.com/">
 <soapenv:Header/>
 <soapenv:Body>
    <dyn:setFields>
       <accountId>${accountId}</accountId>
       <password>${password}</password>
-      <verificationId>${verificationid}</verificationid>
+      <verificationId>${verificationid}</verificationId>
       <sourceId>${sourceId}</sourceId>
       <inputFields>
          <input>
@@ -141,14 +143,14 @@ class Controller {
     static async setFieldsAec(req, res, next) {
         const { surname, middleNames, givenName, streetName, streetNumber, streetType, suburb, state, postcode } = req.body
         const { verificationid } = req.headers
-        
+
         let xmlSetAec = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:dyn="http://dynamicform.services.registrations.edentiti.com/">
 <soapenv:Header/>
 <soapenv:Body>
    <dyn:setFields>
       <accountId>${accountId}</accountId>
       <password>${password}</password>
-      <verificationId>${verificationid}</verificationid>
+      <verificationId>${verificationid}</verificationId>
       <sourceId>aec</sourceId>
       <inputFields>
          
@@ -222,11 +224,11 @@ class Controller {
     }
 
     static async setFieldsVisa(req, res, next) {
-        const { visaNumber, surname, dob, country, tandc} = req.body
-        const {verificationid} = req.headers
+        const { visaNumber, surname, dob, country, tandc } = req.body
+        const { verificationid } = req.headers
         console.log(req.headers, "INI VERIFICATION ID")
         console.log(req.body, "INI REQ BODY")
-        
+
         let xmlSetVisa = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:dyn="http://dynamicform.services.registrations.edentiti.com/">
 <soapenv:Header/>
 <soapenv:Body>
@@ -266,7 +268,7 @@ class Controller {
         try {
             let getFields = await greenID.post('', xmlSetVisa)
             let parsedsetFields = JSON.parse(convert.xml2json(getFields.data, { compact: true, spaces: 4 }))
-            
+
             res.status(200).json({
                 result: parsedsetFields
             })
@@ -288,18 +290,18 @@ class Controller {
 
                 res.status(500).json({ error: error, message: 'internal server error' })
 
-                console.log(error, )
+                console.log(error,)
             }
 
 
 
-        } 
+        }
     }
 
     static async getSources(req, res, next) {
 
         const { verificationid } = req.headers
-        console.log(req.headers < "INI HEADERS")
+        console.log(req.headers, "INI HEADERS")
         try {
             let xmls = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:dyn="http://dynamicform.services.registrations.edentiti.com/">
             <soapenv:Header/>
@@ -320,10 +322,10 @@ class Controller {
             let overallVerificationStatus = parsedGetSources['env:Envelope']['env:Body']['ns2:getSourcesResponse']['return']['verificationResult']['overallVerificationStatus']['_text']
             console.log(parsedGetSources['env:Envelope']['env:Body']['ns2:getSourcesResponse']['return']['verificationResult']['overallVerificationStatus'], "INI GET SOURCES")
             let currentResidentialAddress = parsedGetSources['env:Envelope']['env:Body']['ns2:getSourcesResponse']['return']['registrationDetails']['currentResidentialAddress']
-            Object.keys(currentResidentialAddress).map(function(key, index) {
+            Object.keys(currentResidentialAddress).map(function (key, index) {
                 currentResidentialAddress[key] = currentResidentialAddress[key]["_text"];
-              });
-            
+            });
+
             const arrOfObj = parsedGetSources['env:Envelope']['env:Body']['ns2:getSourcesResponse']['return']['sourceList']['source'].map(el => {
                 if (!el.value) {
                     el.value = { _text: '' }
@@ -337,8 +339,9 @@ class Controller {
                 return obj
             })
             console.log(arrOfObj, "<<<<<<")
+            const objOfObj = Object.assign({}, ...arrOfObj)
             const fieldResults = parsedGetSources['env:Envelope']['env:Body']['ns2:getSourcesResponse']['return']['verificationResult']['individualResult'].filter(element => {
-                if (element['state']['_text'] === 'VERIFIED' || element['state']['_text'] === 'NOT_FOUND_ON_LIST') {
+                if (element['state']['_text'] === 'VERIFIED' || element['state']['_text'] === 'VERIFIED_WITH_CHANGES' || element['state']['_text'] === 'NOT_FOUND_ON_LIST') {
                     return true
                 } else {
                     return false
@@ -352,6 +355,7 @@ class Controller {
             }).map(element => {
                 return element['fieldResult']
             })
+            console.log(parsedGetSources['env:Envelope']['env:Body']['ns2:getSourcesResponse']['return']['verificationResult']['individualResult'], "INI FIELD RESULTS")
             let mergedFieldResults = [].concat.apply([], fieldResults).filter(el => {
                 if (el['status']['_text'] == 'CONFIRMED') {
                     return true
@@ -360,7 +364,7 @@ class Controller {
                 }
             })
             console.log(parsedGetSources['env:Envelope']['env:Body']['ns2:getSourcesResponse']['return']['verificationResult']['individualResult'].filter(element => {
-                if (element['state']['_text'] === 'VERIFIED' || element['state']['_text'] === 'NOT_FOUND_ON_LIST') {
+                if (element['state']['_text'] === 'VERIFIED' || element['state']['_text'] === 'VERIFIED_WITH_CHANGES' || element['state']['_text'] === 'NOT_FOUND_ON_LIST') {
                     return true
                 } else {
                     return false
@@ -380,7 +384,7 @@ class Controller {
                 postcode: 0 //required
             }
 
-            
+
             console.log(mergedFieldResults, "INI PARSED ATAS")
             //console.log(fieldResults, "INI PARSED BAWAH")
             mergedFieldResults.forEach(element => {
@@ -388,10 +392,16 @@ class Controller {
                     if (key == element.name._text) {
                         requiredData[key]++
                     }
+
+
+
                 }
             })
             let fullName = (requiredData.givenName + requiredData.surname) / 2
             let fullAdress = (requiredData.streetNumber + requiredData.streetName + requiredData.suburb + requiredData.state + requiredData.postcode) / 5
+            if (objOfObj.dnb == 'VERIFIED') {
+                fullAdress = fullAdress + 1
+            }
             let dob = requiredData.dob
             //  fullAdress = 2
             //  fullName = 2
@@ -482,7 +492,7 @@ class Controller {
           <dyn:getFields>
              <accountId>${accountId}</accountId>
              <password>${password}</password>
-             <verificationId>${verificationid}</verificationid>
+             <verificationId>${verificationid}</verificationId>
              <sourceId>${sourceId}</sourceId>
           </dyn:getFields>
        </soapenv:Body>
@@ -525,9 +535,9 @@ class Controller {
 
             let htmlForm = decode(htmlEntityTagRemoved)//ubah html entity jadi format html 
             let simplerForm = htmlForm.match(/<sourcefields>(.*?)<\/sourcefields>/g)[0]
-            let objFromHtml =  new JSDOM(simplerForm);
+            let objFromHtml = new JSDOM(simplerForm);
             //console.log(htmlForm, "HTML FORM", simplerForm, "SIMPLE")
-            console.log(objFromHtml.window.document.querySelector("select").textContent, " INI PARSED")
+
             console.log(simplerForm)
             res.status(200).json({
                 objFromHtml: objFromHtml,
@@ -544,49 +554,49 @@ class Controller {
     static async registerCustomer(req, res, next) {
         const { givenName, middleNames, surname, email, dob, flatNumber, streetNumber, streetName, streetType, suburb, state, postcode, } = req.body
 
-        
 
-        
-        
+
+
+
         try {
             let errorsMessages = []
-            if(!givenName) {
+            if (!givenName) {
                 errorsMessages.push('Given name required')
             }
-            if(!surname) {
+            if (!surname) {
                 errorsMessages.push(`surname required`)
             }
-            if(!dob) {
+            if (!dob) {
                 errorsMessages.push(`Date of birth required`)
-                
+
             }
-            if(!flatNumber) {
+            if (!flatNumber) {
                 errorsMessages.push(`Flat number required`)
-                
+
             }
-            if(!streetNumber) {
+            if (!streetNumber) {
                 errorsMessages.push(`Street number required`)
-                
+
             }
-            if(!streetName) {
+            if (!streetName) {
                 errorsMessages.push(`Street name required`)
-                
+
             }
-            if(!suburb) {
+            if (!suburb) {
                 errorsMessages.push(`Suburb name required`)
-                
+
             }
-            if(!state) {
+            if (!state) {
                 errorsMessages.push(`State name required`)
-                
+
             }
-            if(!postcode) {
+            if (!postcode) {
                 errorsMessages.push(`Postcode required`)
-                
+
             }
-            
+
             if (errorsMessages.length > 0) {
-                throw({
+                throw ({
                     code: 400,
                     name: "BAD_REQUEST",
                     message: errorsMessages
@@ -636,6 +646,57 @@ class Controller {
             next(error)
             // res.status(500).json({ message: "internal server error" })
             console.log(error)
+        }
+    }
+    static async mailVerified(req, res, next) {
+        try {
+            const { registrationDetails, currentResidentialAddress } = req.body
+            console.log(registrationDetails.name.givenName._text, "INI REGIST DETAILS DI MAIL")
+            let data = {
+                "to": "pholiodrei@gmail.com",
+                "subject": "Cogratulations, you are Verified",
+                "html": `<p>Congratulations ${registrationDetails.name.givenName._text} ${registrationDetails.name.middleNames._text} ${registrationDetails.name.surname._text}, your ID have been verified </p>`,
+                "company": "KYC Inc",
+                "sendername": "KYC customer support"
+            }
+            let sendMail = await restDb.post('https://testdatabase-61b1.restdb.io/mail', data)
+            res.status(200).json({ message: "verification mail successfully sent" })
+            console.log(sendMail, "INI SENT MAIL")
+        } catch (error) {
+            console.log(error)
+            next(error)
+        }
+    }
+
+    static async addVerifiedCostumer(req, res, next) {
+        try {
+            const { registrationDetails, currentResidentialAddress } = req.body
+            const { verificationid } = req.headers
+            console.log(req.headers, "INI REGIST DETAILS DI MAIL")
+
+            const fullName = `${registrationDetails.name.givenName._text} ${registrationDetails.name.middleNames._text} ${registrationDetails.name.surname._text}`
+
+            const fullAddres = ` ${currentResidentialAddress.streetName} ${currentResidentialAddress.streetType} ${currentResidentialAddress.streetNumber} ${currentResidentialAddress.suburb} ${currentResidentialAddress.state} ${currentResidentialAddress.postcode} ${currentResidentialAddress.country}`
+
+            let day = registrationDetails.dob.day._text
+            let month = registrationDetails.dob.month._text
+            let year = registrationDetails.dob.year._text
+            if (Number(day) < 10) {
+                day = '0' + day
+            }
+            if (Number(month) < 10) {
+                month = '0' + month
+            }
+            const dob = `${day}/${month}/${year}`
+            console.log(fullName, dob, fullAddres, verificationid, "INI DATA BUAT ADD CUSTOMER")
+            const customer  = await Customer.create({ name: fullName,  verificationId: verificationid, address: fullAddres, dateOfBirth:dob})
+            
+            res.status(200).json({ message:`verified customer successfully added to database`, fullName:fullName, fullAddres:fullAddres, dob:dob, })
+            
+            
+        } catch (error) {
+            console.log(error)
+            next(error)
         }
     }
 
