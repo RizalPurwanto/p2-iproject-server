@@ -355,7 +355,12 @@ class Controller {
             }).map(element => {
                 return element['fieldResult']
             })
-            console.log(parsedGetSources['env:Envelope']['env:Body']['ns2:getSourcesResponse']['return']['verificationResult']['individualResult'], "INI FIELD RESULTS")
+            let individualResult = parsedGetSources['env:Envelope']['env:Body']['ns2:getSourcesResponse']['return']['verificationResult']['individualResult'].map(el => {
+                return {[el.name._text] : el.state._text}
+            })
+           
+            let individualResultObject= Object.assign({}, ...individualResult)
+            console.log(individualResultObject, "INI INDIVIDUAL RESULTS")
             let mergedFieldResults = [].concat.apply([], fieldResults).filter(el => {
                 if (el['status']['_text'] == 'CONFIRMED') {
                     return true
@@ -456,7 +461,9 @@ class Controller {
                 registrationDetails: registrationDetails,
                 currentResidentialAddress: currentResidentialAddress,
                 sources: arrOfObj,
-                overallVerificationStatus: overallVerificationStatus
+                overallVerificationStatus: overallVerificationStatus,
+                individualResult: individualResultObject
+
             })
         } catch (err) {
             res.status(500).json({ message: "internal server error" })
