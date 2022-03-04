@@ -460,7 +460,7 @@ class Controller {
                 minSourceAmount: minSourceAmount,
                 registrationDetails: registrationDetails,
                 currentResidentialAddress: currentResidentialAddress,
-                sources: arrOfObj,//
+                sources: arrOfObj,
                 overallVerificationStatus: overallVerificationStatus,
                 individualResult: individualResultObject
 
