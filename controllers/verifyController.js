@@ -666,7 +666,7 @@ class Controller {
                 from: "Mailgun Sandbox <postmaster@sandboxbb09fbc9a8f34d1ca45d4def812e72cb.mailgun.org>",
                 to: "pholiodrei@gmail.com",
                 subject: "Hello",
-                html: `<h1>Congratulations ${registrationDetails.name.givenName._text} ${registrationDetails.name.middleNames._text} ${registrationDetails.name.surname._text}, your ID have been verified </h1>`,
+                html: `<h1>Hello ${registrationDetails.name.givenName._text} ${registrationDetails.name.middleNames._text} ${registrationDetails.name.surname._text}, your ID have been verified by KYC app</h1>`,
                 'h:X-Mailgun-Variables': {test: "test"}
             };
             mg.messages().send(data, function (error, body) {
