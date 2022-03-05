@@ -660,7 +660,7 @@ class Controller {
     static async mailVerifiedMailgun(req, res, next) {
         try {
             const { registrationDetails, currentResidentialAddress } = req.body
-            console.log(registrationDetails.name.givenName._text, "INI REGIST DETAILS DI MAIL")
+            console.log(registrationDetails.name.givenName._text, "INI REGIST DETAILS DI MAILGUN")
            
             const data = {
                 from: "Mailgun Sandbox <postmaster@sandboxbb09fbc9a8f34d1ca45d4def812e72cb.mailgun.org>",
@@ -673,7 +673,7 @@ class Controller {
             mg.messages().send(data, function (error, body) {
                 if (error) {
                     next(error)
-                    console.log(error)
+                    console.log(error, "ERROR MAILGUN")
                 } else {
                     console.log(body, "BODY MAILGUN DAN SUDAH TERKIRIM");
                 }
