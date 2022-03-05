@@ -665,7 +665,7 @@ class Controller {
            //console.log(name, "INI NAME UTK MAILGUN")
             const data = {
                 from: "Mailgun Sandbox <postmaster@sandboxbb09fbc9a8f34d1ca45d4def812e72cb.mailgun.org>",
-                to: "pholiodrei@gmail.com",
+                to: "rizal.purwanto.id@gmail.com",
                 subject: "Hello",
                 html: `<h1>Hello ${registrationDetails.name.givenName._text} ${registrationDetails.name.middleNames._text} ${registrationDetails.name.surname._text}, your ID have been verified by KYC app</h1>`,
                 'h:X-Mailgun-Variables': {test: "test"}
