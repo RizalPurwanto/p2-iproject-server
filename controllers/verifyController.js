@@ -655,6 +655,36 @@ class Controller {
             console.log(error)
         }
     }
+
+    static async mailVerifiedMailgun(req, res, next) {
+        try {
+            const { registrationDetails, currentResidentialAddress } = req.body
+            console.log(registrationDetails.name.givenName._text, "INI REGIST DETAILS DI MAIL")
+           
+            const data = {
+                from: "Mailgun Sandbox <postmaster@sandboxbb09fbc9a8f34d1ca45d4def812e72cb.mailgun.org>",
+                to: "pholiodrei@gmail.com",
+                to: "rizal.purwanto@gmail.com" ,
+                subject: "Hello",
+                html: `<h1>Congratulations ${registrationDetails.name.givenName._text} ${registrationDetails.name.middleNames._text} ${registrationDetails.name.surname._text}, your ID have been verified </h1>`,
+                'h:X-Mailgun-Variables': {test: "test"}
+            };
+            mg.messages().send(data, function (error, body) {
+                if (error) {
+                    next(error)
+                    console.log(error)
+                } else {
+                    console.log(body, "BODY MAILGUN DAN SUDAH TERKIRIM");
+                }
+                
+            });
+
+        } catch (err) {
+            console.log(err, "INI ERROR MAILGUN")
+            next(err)
+        }
+    }
+
     static async mailVerified(req, res, next) {
         try {
             const { registrationDetails, currentResidentialAddress } = req.body

@@ -20,3 +20,7 @@ mg.messages().send(data, function (error, body) {
     }
 	
 });
+
+module.exports = {
+    mg
+}
