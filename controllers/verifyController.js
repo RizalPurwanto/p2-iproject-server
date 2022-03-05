@@ -8,7 +8,7 @@ const htmlEntities = require('html-entities');
 const decode = require('html-entities-decoder')
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom
-const mg = require('../apis/mailgun')
+const {mg} = require('../apis/mailgun')
 const { Customer } = require('../models/index')
 //require 2 full names, 1 DOB, and 2 addresses from 2 datasources
 let accountId = process.env.GREEN_ID_ACCOUNT
@@ -656,7 +656,7 @@ class Controller {
             console.log(error)
         }
     }
-
+    
     static async mailVerifiedMailgun(req, res, next) {
         try {
             const { registrationDetails, currentResidentialAddress } = req.body
