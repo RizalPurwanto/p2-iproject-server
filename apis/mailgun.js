@@ -12,14 +12,14 @@ const data = {
 	template: "verification_notice",
 	'h:X-Mailgun-Variables': {test: "test"}
 };
-mg.messages().send(data, function (error, body) {
-    if (error) {
-        console.log(error)
-    } else {
-        console.log(body, "BODY");
-    }
+// mg.messages().send(data, function (error, body) {
+//     if (error) {
+//         console.log(error)
+//     } else {
+//         console.log(body, "BODY");
+//     }
 	
-});
+// });
 
 module.exports = {
     mg
