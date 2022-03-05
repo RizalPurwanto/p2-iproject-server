@@ -661,12 +661,19 @@ class Controller {
         try {
             const { registrationDetails, currentResidentialAddress } = req.body
             console.log(registrationDetails.name.givenName._text, "INI REGIST DETAILS DI MAILGUN")
-           
+           const name = "Hortensia Lepaute"
+            // const data = {
+            //     from: "Mailgun Sandbox <postmaster@sandboxbb09fbc9a8f34d1ca45d4def812e72cb.mailgun.org>",
+            //     to: "pholiodrei@gmail.com",
+            //     subject: "Hello",
+            //     html: `<h1>Hello ${registrationDetails.name.givenName._text} ${registrationDetails.name.middleNames._text} ${registrationDetails.name.surname._text}, your ID have been verified by KYC app</h1>`,
+            //     'h:X-Mailgun-Variables': {test: "test"}
+            // };
             const data = {
                 from: "Mailgun Sandbox <postmaster@sandboxbb09fbc9a8f34d1ca45d4def812e72cb.mailgun.org>",
                 to: "pholiodrei@gmail.com",
                 subject: "Hello",
-                html: `<h1>Hello ${registrationDetails.name.givenName._text} ${registrationDetails.name.middleNames._text} ${registrationDetails.name.surname._text}, your ID have been verified by KYC app</h1>`,
+                html: `<h1>Hello ${name}, your ID have been verified by KYC app</h1>`,
                 'h:X-Mailgun-Variables': {test: "test"}
             };
             mg.messages().send(data, function (error, body) {
