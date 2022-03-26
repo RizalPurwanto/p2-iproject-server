@@ -802,7 +802,7 @@ class Controller {
             const registerDetailsString = JSON.stringify(registrationDetails)
             const sourceListString = JSON.stringify(sourceList)
             const individualResultString = JSON.stringify(individualResult)
-            console.log(registrationDetails.name.givenName._text, "INI REGIST DETAILS DI MAIL")
+            // console.log(registrationDetails.name.givenName._text, "INI REGIST DETAILS DI MAIL")
             let data = {
                 "to": "pholiodrei@gmail.com",
                 "subject": "You are not Verified",
