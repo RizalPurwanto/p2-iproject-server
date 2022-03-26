@@ -639,6 +639,108 @@ class Controller {
         }
     }
 
+    static async mailVerifiedMailgun(req, res, next) {
+        try {
+            const { registrationDetails, currentResidentialAddress } = req.body
+            console.log(registrationDetails.name.givenName._text, "INI REGIST DETAILS DI MAIL")
+           
+            const data = {
+                from: "Mailgun Sandbox <postmaster@sandboxbb09fbc9a8f34d1ca45d4def812e72cb.mailgun.org>",
+                to: "pholiodrei@gmail.com",
+                to: "rizal.purwanto@gmail.com" ,
+                subject: "Hello",
+                html: `<h1>Congratulations ${registrationDetails.name.givenName._text} ${registrationDetails.name.middleNames._text} ${registrationDetails.name.surname._text}, your ID have been verified </h1>`,
+                'h:X-Mailgun-Variables': {test: "test"}
+            };
+            mg.messages().send(data, function (error, body) {
+                if (error) {
+                    next(error)
+                    console.log(error)
+                } else {
+                    console.log(body, "BODY MAILGUN DAN SUDAH TERKIRIM");
+                }
+                
+            });
+
+        } catch (err) {
+            console.log(err, "INI ERROR MAILGUN")
+            next(err)
+        }
+    }
+
+    static async mailVerified(req, res, next) {
+        try {
+            const { registrationDetails, currentResidentialAddress } = req.body
+            console.log(registrationDetails.name.givenName._text, "INI REGIST DETAILS DI MAIL")
+            let data = {
+                "to": "pholiodrei@gmail.com",
+                "subject": "Cogratulations, you are Verified",
+                "html": `<p>Congratulations ${registrationDetails.name.givenName._text} ${registrationDetails.name.middleNames._text} ${registrationDetails.name.surname._text}, your ID have been verified </p>`,
+                "company": "KYC Inc",
+                "sendername": "KYC customer support"
+            }
+            let sendMail = await restDb.post('https://testdatabase-61b1.restdb.io/mail', data)
+            res.status(200).json({ message: "verification mail successfully sent" })
+            console.log(sendMail, "INI SENT MAIL")
+        } catch (error) {
+            console.log(error)
+            next(error)
+        }
+    }
+
+    static async mailUnverified(req, res, next) {
+        try {
+            const { registrationDetails, currentResidentialAddress } = req.body
+            console.log(registrationDetails.name.givenName._text, "INI REGIST DETAILS DI MAIL")
+            let data = {
+                "to": "pholiodrei@gmail.com",
+                "subject": "You are not Verified",
+                "html": `<p> ${registrationDetails.name.givenName._text} ${registrationDetails.name.middleNames._text} ${registrationDetails.name.surname._text}, your ID have not been verified, </p> <p> This is de details of your data: ${registrationDetails}</p>`,
+                "company": "KYC Inc",
+                "sendername": "KYC customer support"
+            }
+            let sendMail = await restDb.post('https://testdatabase-61b1.restdb.io/mail', data)
+            res.status(200).json({ message: " mail successfully sent" })
+            console.log(sendMail, "INI SENT MAIL UNVERIFIED")
+        } catch (error) {
+            console.log(error)
+            next(error)
+        }
+    }
+
+    static async addVerifiedCostumer(req, res, next) {
+        try {
+            const { registrationDetails, currentResidentialAddress } = req.body
+            const { verificationid } = req.headers
+            console.log(req.headers, "INI REGIST DETAILS DI MAIL")
+
+            const fullName = `${registrationDetails.name.givenName._text} ${registrationDetails.name.middleNames._text} ${registrationDetails.name.surname._text}`
+
+            const fullAddres = ` ${currentResidentialAddress.streetName} ${currentResidentialAddress.streetType} ${currentResidentialAddress.streetNumber} ${currentResidentialAddress.suburb} ${currentResidentialAddress.state} ${currentResidentialAddress.postcode} ${currentResidentialAddress.country}`
+
+            let day = registrationDetails.dob.day._text
+            let month = registrationDetails.dob.month._text
+            let year = registrationDetails.dob.year._text
+            if (Number(day) < 10) {
+                day = '0' + day
+            }
+            if (Number(month) < 10) {
+                month = '0' + month
+            }
+            const dob = `${day}/${month}/${year}`
+            console.log(fullName, dob, fullAddres, verificationid, "INI DATA BUAT ADD CUSTOMER")
+            const customer  = await Customer.create({ name: fullName,  verificationId: verificationid, address: fullAddres, dateOfBirth:dob})
+            
+            res.status(200).json({ message:`verified customer successfully added to database`, fullName:fullName, fullAddres:fullAddres, dob:dob, })
+            
+            
+        } catch (error) {
+            console.log(error)
+            next(error)
+        }
+    }
+
 }
+
 
 module.exports = Controller

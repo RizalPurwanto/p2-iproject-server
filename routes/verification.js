@@ -11,4 +11,9 @@ router.post ('/register', Controller.registerCustomer)//daftarkan customer baru
  router.post('/visa', Controller.setFieldsVisa)//arahkan ke form berdasarkan 
  router.post('/driverlicence/:sourceId', Controller.setFieldsDriverLicence)//post ke API berdasarkan body dari form
 
+ router.post('/mail', Controller.mailVerified)
+ router.post('/mailgun', Controller.mailVerifiedMailgun)
+ router.post('/mail/unverified', Controller.mailUnverified)
+ router.post('/add', Controller.addVerifiedCostumer)
+
 module.exports = router
