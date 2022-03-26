@@ -799,11 +799,12 @@ class Controller {
     static async mailUnverified(req, res, next) {
         try {
             const { registrationDetails, currentResidentialAddress } = req.body
+            const registerDetailsJson = JSON.stringify(registrationDetails)
             console.log(registrationDetails.name.givenName._text, "INI REGIST DETAILS DI MAIL")
             let data = {
                 "to": "pholiodrei@gmail.com",
                 "subject": "You are not Verified",
-                "html": `<p> ${registrationDetails.name.givenName._text} ${registrationDetails.name.middleNames._text} ${registrationDetails.name.surname._text}, your ID have not been verified, </p> <p> This is de details of your data: ${registrationDetails}</p>`,
+                "html": `<p> ${registrationDetails.name.givenName._text} ${registrationDetails.name.middleNames._text} ${registrationDetails.name.surname._text}, your ID have not been verified, </p> <p> This is de details of your data: ${registerDetailsJson}</p>`,
                 "company": "KYC Inc",
                 "sendername": "KYC customer support"
             }
