@@ -407,6 +407,12 @@ class Controller {
             let fullAdress = (requiredData.streetNumber + requiredData.streetName + requiredData.suburb + requiredData.state + requiredData.postcode) / 5
             if (objOfObj.dnb == 'VERIFIED') {
                 fullAdress = fullAdress + 1
+                if(dob < 1) {
+                    dob++
+                }
+                if(fullName < 2) {
+                    fullName++
+                }
             }
             let dob = requiredData.dob
             //  fullAdress = 2
@@ -555,12 +561,13 @@ class Controller {
             })
         } catch (error) {
             res.status(500).json({ message: "internal server error" })
-            console.log(error)
+            console.log(error, "INI ERROR GETFIELDS")
         }
     }
 
     static async registerCustomer(req, res, next) {
         const { givenName, middleNames, surname, email, dob, flatNumber, streetNumber, streetName, streetType, suburb, state, postcode, } = req.body
+        
 
 
 
